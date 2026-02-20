@@ -1,115 +1,33 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>রমজান সময়সূচী BD 2026</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>রমজান সময়সূচি</title>
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
-    <!-- JS -->
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-
-    <style>
-        /* 🌙 Notice Box Style */
-        .notice-box {
-            width: 100%;
-            background: linear-gradient(90deg, #000000, #111111);
-            border-bottom: 2px solid gold;
-            padding: 12px 10px;
-            text-align: center;
-            position: sticky;
-            top: 0;
-            z-index: 9999;
-            animation: fadeDown 0.8s ease;
-        }
-
-        .notice-content {
-            color: #ffffff;
-            font-size: 14px;
-            max-width: 1000px;
-            margin: auto;
-            line-height: 1.6;
-        }
-
-        .notice-text strong {
-            color: gold;
-            font-size: 15px;
-        }
-
-        .notice-icon {
-            font-size: 18px;
-            margin-right: 6px;
-        }
-
-        @keyframes fadeDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* 🕌 Center Box Enhancement */
-        .logo-top {
-            width: 110px;
-            margin-bottom: 15px;
-            border-radius: 20px;
-            box-shadow: 0 0 20px gold;
-        }
-
-        .salam-box {
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 215, 0, 0.4);
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
-        }
-    </style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </head>
 
 <body class="salam-bg">
 
-<!-- 🌙 TOP NOTICE BOX (Professional) -->
-<div class="notice-box">
-    <div class="notice-content">
-        <span class="notice-icon">⚠️</span>
-        <span class="notice-text">
-            <strong>গুরুত্বপূর্ণ নোট:</strong> এই ওয়েবসাইটটি ফ্রি সার্ভারে হোস্ট করা হয়েছে, 
-            তাই প্রথমবার লোড হতে ২০–৩০ সেকেন্ড সময় লাগতে পারে। দয়া করে একটু অপেক্ষা করুন। <br>
-            🙏 এটি আমার প্রথম বানানো প্রজেক্ট। কোনো ভুল থাকলে ক্ষমার দৃষ্টিতে দেখবেন 
-            এবং ভুল ধরিয়ে দিলে ইনশাআল্লাহ দ্রুত ঠিক করে দেওয়া হবে।
-        </span>
-    </div>
-</div>
-
-<!-- 🕒 Live Clock -->
 <div class="clock" id="clock"></div>
 
-<!-- 🕌 CENTER SALAM SECTION -->
+<!-- CENTER SALAM WITH TRANSPARENT BOX -->
 <div class="salam-center-wrapper">
     <div class="salam-box">
-
-        <!-- 🕌 LOGO (তোমার Islamic Logo) -->
-        <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo-top" alt="Ramadan Logo">
-
         <h1 class="salam-text">আসসালামু আলাইকুম</h1>
-        <p class="salam-sub">রমজান মোবারক 🌙</p>
-
-        <br>
-
-        <a href="/dashboard" class="enter-btn">
-            সময়সূচী দেখুন
-        </a>
+        <p class="salam-sub">রমজান মোবারক</p>
     </div>
 </div>
 
-<!-- 👨‍💻 Footer Credit -->
-<div class="footer">
-    Developed by Mehedi Hasan | Ramadan Somoysuchi BD 2026
-</div>
+<div class="footer">Developed by Mehedi Hasan</div>
+
+<script>
+setTimeout(function(){
+    window.location.href = "/dashboard";
+}, 5000);
+</script>
 
 </body>
 </html>
