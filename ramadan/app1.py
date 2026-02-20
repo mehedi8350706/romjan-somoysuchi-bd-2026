@@ -9,33 +9,35 @@ app = Flask(__name__)
 APP_NAME = "রমজান সময়সূচী BD 2026"
 
 # ===== BANGLADESH TIME (UTC+6) =====
-BD_TIME = timezone(timedelta(hours=6))
+BD_TZ = timezone(timedelta(hours=6))
 
 def now_bd():
-    return datetime.now(BD_TIME)
+    # ALWAYS timezone-aware BD time
+    return datetime.now(BD_TZ)
 
-# ===== RAMADAN AUTO CLOSE (30 DAYS → EID) =====
-RAMADAN_START = datetime(2026, 2, 18, tzinfo=BD_TIME)
+# ===== RAMADAN CONFIG =====
+# ⚠️ IMPORTANT: Make this timezone-aware
+RAMADAN_START = datetime(2026, 2, 18, 0, 0, 0, tzinfo=BD_TZ)
 RAMADAN_DAYS = 30
 
 def is_ramadan_over():
     today = now_bd()
     end_date = RAMADAN_START + timedelta(days=RAMADAN_DAYS)
-    return today >= end_date
+    return today >= end_date  # FIXED (both aware)
 
-# ===== SAFE JSON LOAD (RENDER FIX) =====
+# ===== SAFE PATH (RENDER FIX) =====
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-divisions_path = os.path.join(BASE_DIR, "data", "divisions.json")
-ramadan_times_path = os.path.join(BASE_DIR, "data", "ramadan_times.json")
+divisions_file = os.path.join(BASE_DIR, "data", "divisions.json")
+times_file = os.path.join(BASE_DIR, "data", "ramadan_times.json")
 
-with open(divisions_path, "r", encoding="utf-8") as f:
+with open(divisions_file, "r", encoding="utf-8") as f:
     divisions = json.load(f)
 
-with open(ramadan_times_path, "r", encoding="utf-8") as f:
+with open(times_file, "r", encoding="utf-8") as f:
     ramadan_times = json.load(f)
 
-# ===== TIME FORMAT (24H → 12H) =====
+# ===== TIME FORMAT =====
 def to_12_hour(time_str):
     hour, minute = map(int, time_str.split(":"))
     suffix = "AM"
@@ -84,19 +86,17 @@ def adjust_time(base_time, offset_min):
     dt += timedelta(minutes=offset_min)
     return dt.strftime("%H:%M")
 
-# ===== HOME =====
+# ===== ROUTES =====
 @app.route("/")
 def home():
     if is_ramadan_over():
         return render_template("eid.html", app_name=APP_NAME)
     return render_template("welcome.html", app_name=APP_NAME)
 
-# ===== DASHBOARD (Division + District + Date) =====
 @app.route("/dashboard")
 def dashboard():
     return render_template("dashboard.html", divisions=divisions, app_name=APP_NAME)
 
-# ===== MAIN RESULT LOGIC (BD TIME FIX + DATE BUG FIX) =====
 @app.route("/result", methods=["POST"])
 def result():
     division = request.form.get("division")
@@ -106,22 +106,20 @@ def result():
     if not division or not district or not selected_date:
         return redirect(url_for("dashboard"))
 
-    try:
-        date_obj = datetime.strptime(selected_date, "%Y-%m-%d").replace(tzinfo=BD_TIME)
-    except:
-        return redirect(url_for("dashboard"))
+    # BD timezone date
+    date_obj = datetime.strptime(selected_date, "%Y-%m-%d")
+    date_obj = date_obj.replace(tzinfo=BD_TZ)
 
-    # ===== TARABI & ROZA (ALL DATE SHOW) =====
-    diff_days = (date_obj - RAMADAN_START).days
-    tarabi = max(0, min(30, diff_days + 1))
-    roza = max(0, min(30, diff_days))
-
-    # ===== BD TODAY SYSTEM (MIDNIGHT BUG FIX) =====
+    # BD TODAY (MIDNIGHT BUG FIX)
     today_bd = now_bd().date()
     selected_real = date_obj.date()
     tomorrow_bd = today_bd + timedelta(days=1)
 
-    # 🔴 PAST DATE
+    diff_days = (date_obj - RAMADAN_START).days
+    tarabi = max(0, min(30, diff_days + 1))
+    roza = max(0, min(30, diff_days))
+
+    # ===== PAST =====
     if selected_real < today_bd:
         msg = "সময় শেষ হয়েছে"
         return render_template(
@@ -142,7 +140,7 @@ def result():
             esha_12=msg,
         )
 
-    # 🟡 TOMORROW
+    # ===== TOMORROW =====
     if selected_real == tomorrow_bd:
         msg = "আগামীকাল শুরু হবে"
         return render_template(
@@ -163,28 +161,7 @@ def result():
             esha_12=msg,
         )
 
-    # 🔵 FUTURE DATE
-    if selected_real > tomorrow_bd:
-        future_text = f"{date_obj.strftime('%d %B')} তারিখ শুরু হবে"
-        return render_template(
-            "result.html",
-            app_name=APP_NAME,
-            division=division,
-            district=district,
-            date_bn=date_obj.strftime("%d %B %Y"),
-            week=get_bangla_week(date_obj),
-            tarabi=tarabi,
-            roza=roza,
-            sehri=future_text,
-            iftar=future_text,
-            fajar_12=future_text,
-            zohor_12=future_text,
-            asor_12=future_text,
-            magrib_12=future_text,
-            esha_12=future_text,
-        )
-
-    # 🟢 TODAY (LIVE TIME SYSTEM)
+    # ===== TODAY LIVE =====
     base_times = ramadan_times.get("ঢাকা", [])
     day_index = max(0, min(29, diff_days if diff_days >= 0 else 0))
 
@@ -196,7 +173,6 @@ def result():
         sehri_base = "04:50"
         iftar_base = "18:10"
 
-    # OFFSET APPLY
     if district in district_offsets:
         offset = district_offsets[district]
     else:
@@ -204,12 +180,6 @@ def result():
 
     sehri_raw = adjust_time(sehri_base, offset[0])
     iftar_raw = adjust_time(iftar_base, offset[1])
-
-    fajar_raw = sehri_raw
-    zohor_raw = "12:15"
-    asor_raw = "16:30"
-    magrib_raw = iftar_raw
-    esha_raw = "19:45"
 
     return render_template(
         "result.html",
@@ -222,14 +192,14 @@ def result():
         roza=roza,
         sehri=to_12_hour(sehri_raw),
         iftar=to_12_hour(iftar_raw),
-        fajar_12=to_12_hour(fajar_raw),
-        zohor_12=to_12_hour(zohor_raw),
-        asor_12=to_12_hour(asor_raw),
-        magrib_12=to_12_hour(magrib_raw),
-        esha_12=to_12_hour(esha_raw),
+        fajar_12=to_12_hour(sehri_raw),
+        zohor_12="12:15 PM",
+        asor_12="04:30 PM",
+        magrib_12=to_12_hour(iftar_raw),
+        esha_12="07:45 PM",
     )
 
-# ===== RUN (RENDER + LOCAL BOTH FIX) =====
+# ===== RENDER + LOCAL PORT FIX =====
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
