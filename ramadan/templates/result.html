@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>রমজান সময়সূচি</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</head>
+
+<body class="clean-bg">
+
+<!-- CLOCK -->
+<div class="clock" id="clock"></div>
+
+<!-- SELECTED INFO -->
+<div class="selected-wrapper">
+    <div class="selected-line-1">
+        {{ division }} বিভাগ , {{ district }} জেলা
+    </div>
+
+    <div class="selected-line-2">
+        নির্বাচিত তারিখ: {{ date_bn }}
+    </div>
+
+    <div class="selected-week">
+        বার: {{ week }}
+    </div>
+</div>
+
+<!-- TARABI & ROZA -->
+<div class="info-grid">
+    <div class="info-box">
+        🌙 তারাবি: {{ tarabi }} তম
+    </div>
+    <div class="info-box">
+        🕌 রোজা: {{ roza }} তম
+    </div>
+    <div class="info-box">
+        🌅 সেহরি: {{ sehri }}
+        <div class="countdown" data-time="{{ sehri }}"></div>
+    </div>
+    <div class="info-box">
+        🌇 ইফতার: {{ iftar }}
+        <div class="countdown" data-time="{{ iftar }}"></div>
+    </div>
+</div>
+
+<!-- ===== NAMAZ ROW ===== -->
+<div class="namaz-row" id="namazRow">
+
+    <div class="namaz-glass" data-waqt="fajr" data-time="{{ fajar_12 }}">
+        <h3>ফজর</h3>
+        <div class="namaz-time">সময়: {{ fajar_12 }}</div>
+        <div class="namaz-details">
+            সুন্নত : ২ রাকাত<br>
+            ফরজ : ২ রাকাত (ভোর)
+        </div>
+        <div class="countdown" data-time="{{ fajar_12 }}"></div>
+        <div class="waqt-range"></div>
+    </div>
+
+    <div class="namaz-glass" data-waqt="zohor" data-time="{{ zohor_12 }}">
+        <h3>যোহর</h3>
+        <div class="namaz-time">সময়: {{ zohor_12 }}</div>
+        <div class="namaz-details">
+            সুন্নত : ৪ রাকাত<br>
+            ফরজ : ৪ রাকাত<br>
+            সুন্নত : ২ রাকাত (দুপুর)
+        </div>
+        <div class="countdown" data-time="{{ zohor_12 }}"></div>
+        <div class="waqt-range"></div>
+    </div>
+
+    <div class="namaz-glass" data-waqt="asor" data-time="{{ asor_12 }}">
+        <h3>আসর</h3>
+        <div class="namaz-time">সময়: {{ asor_12 }}</div>
+        <div class="namaz-details">
+            ফরজ : ৪ রাকাত (বিকেল)
+        </div>
+        <div class="countdown" data-time="{{ asor_12 }}"></div>
+        <div class="waqt-range"></div>
+    </div>
+
+    <div class="namaz-glass" data-waqt="magrib" data-time="{{ magrib_12 }}">
+        <h3>মাগরিব</h3>
+        <div class="namaz-time">সময়: {{ magrib_12 }}</div>
+        <div class="namaz-details">
+            ফরজ : ৩ রাকাত<br>
+            সুন্নত : ২ রাকাত
+        </div>
+        <div class="countdown" data-time="{{ magrib_12 }}"></div>
+        <div class="waqt-range"></div>
+    </div>
+
+    <div class="namaz-glass" data-waqt="esha" data-time="{{ esha_12 }}">
+        <h3>এশা</h3>
+        <div class="namaz-time">সময়: {{ esha_12 }}</div>
+        <div class="namaz-details">
+            ফরজ : ৪ রাকাত<br>
+            সুন্নত : ২ রাকাত<br>
+            বিতর : ৩ রাকাত (রাত)
+        </div>
+        <div class="countdown" data-time="{{ esha_12 }}"></div>
+        <div class="waqt-range"></div>
+    </div>
+
+</div>
+
+
+<div class="footer">
+    Developed by Mehedi Hasan
+</div>
+
+</body>
+</html>

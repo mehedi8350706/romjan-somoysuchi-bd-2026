@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>রমজান সময়সূচি</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</head>
+
+<body class="salam-bg">
+
+<div class="clock" id="clock"></div>
+
+<!-- CENTER SALAM WITH TRANSPARENT BOX -->
+<div class="salam-center-wrapper">
+    <div class="salam-box">
+        <h1 class="salam-text">আসসালামু আলাইকুম</h1>
+        <p class="salam-sub">রমজান মোবারক</p>
+    </div>
+</div>
+
+<div class="footer">Developed by Mehedi Hasan</div>
+
+<script>
+setTimeout(function(){
+    window.location.href = "/dashboard";
+}, 5000);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,414 @@
+/* ===== RESET ===== */
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    font-family: 'Segoe UI', sans-serif;
+    color: #ffffff;
+    min-height: 100vh;
+}
+
+/* ===== GLOBAL BACKGROUND (ALL PAGES SAME) ===== */
+.clean-bg,
+.salam-bg{
+    min-height: 100vh;
+    width: 100%;
+    background: url("/static/images/salam.jpg") no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
+}
+
+/* ===== DARK OVERLAY ===== */
+.clean-bg::before,
+.salam-bg::before{
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.38);
+    z-index: 0;
+}
+
+/* Keep all content above overlay */
+body > *{
+    position: relative;
+    z-index: 2;
+}
+
+/* ===== LIVE CLOCK (TOP RIGHT - ALL DEVICE FIXED) ===== */
+.clock{
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    font-size: 22px;
+    font-weight: bold;
+    color: gold;
+    text-shadow: 3px 3px 10px black;
+    z-index: 9999;
+}
+
+/* =======================================================
+   🔰 1ST PAGE (SALAM CENTER FIX - ONLY THIS UPDATED)
+   ======================================================= */
+.salam-bg{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.salam-center-wrapper{
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.salam-box{
+    background: rgba(0, 0, 0, 0.55);
+    padding: 50px 80px;
+    border-radius: 25px;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.15);
+    max-width: 90%;
+}
+
+.salam-text{
+    font-size: 48px;
+    color: gold;
+    font-weight: bold;
+    text-shadow: 4px 4px 15px black;
+    white-space: nowrap; /* one line pc + mobile */
+}
+
+.salam-sub{
+    font-size: 28px;
+    margin-top: 10px;
+    text-shadow: 3px 3px 12px black;
+}
+
+/* =======================================================
+   🕌 2ND PAGE (DASHBOARD) — ⚠️ UNCHANGED (AS YOU SAID)
+   ======================================================= */
+.dashboard-center{
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.select-glass-box{
+    width: 360px;
+    padding: 35px 30px;
+    border-radius: 22px;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 0 30px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.glass-input{
+    width: 100%;
+    padding: 14px;
+    font-size: 18px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(0,0,0,0.55);
+    color: #ffffff;
+    outline: none;
+    text-align: center;
+    backdrop-filter: blur(6px);
+}
+
+.glass-input option{
+    background: rgba(0,0,0,0.9);
+    color: #fff;
+}
+
+input[type="date"]{
+    color-scheme: dark;
+}
+
+.glass-btn{
+    padding: 14px;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    background: gold;
+    color: black;
+    transition: 0.3s;
+}
+
+.glass-btn:hover{
+    background: #ffd700;
+    transform: scale(1.03);
+}
+
+/* =======================================================
+   📊 3RD PAGE (RESULT PAGE — SAFE + TOP INFO FIXED)
+   ======================================================= */
+
+/* Selected Division, Date, Week */
+.selected-wrapper{
+    width: 100%;
+    text-align: center;
+    margin-top: 70px;
+    margin-bottom: 20px;
+    padding: 0 15px;
+}
+
+.selected-line-1{
+    font-size: 36px;
+    font-weight: bold;
+    text-shadow: 3px 3px 10px black;
+    white-space: nowrap;
+}
+
+.selected-line-2{
+    font-size: 24px;
+    color: gold;
+    margin-top: 8px;
+    font-weight: bold;
+    text-shadow: 3px 3px 10px black;
+}
+
+.selected-week{
+    font-size: 22px;
+    color: #ffd700;
+    margin-top: 6px;
+    text-shadow: 3px 3px 10px black;
+}
+
+/* 🔥 TARABI / ROJA / SEHRI / IFTAR (FIXED GLASS BOX AREA) */
+.info-grid{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    max-width: 750px;
+    margin: 25px auto;
+    padding: 0 15px;
+}
+
+.info-box{
+    background: rgba(0,0,0,0.70);
+    padding: 18px;
+    border-radius: 16px;
+    font-size: 22px;
+    font-weight: bold;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.15);
+    text-shadow: 2px 2px 8px black;
+}
+
+/* ===== 5 WAKT NAMAZ (PC ONE LINE GLASS) ===== */
+.namaz-row{
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+    padding: 30px 40px;
+    margin-top: 20px;
+    margin-bottom: 90px;
+}
+
+.namaz-glass{
+    background: rgba(0, 0, 0, 0.65);
+    border-radius: 20px;
+    padding: 20px 15px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 0 25px rgba(0,0,0,0.6);
+    min-height: 220px;
+}
+
+.namaz-glass h3{
+    font-size: 26px;
+    color: gold;
+    margin-bottom: 10px;
+    text-shadow: 3px 3px 10px black;
+}
+
+.namaz-time{
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    text-shadow: 2px 2px 8px black;
+}
+
+.countdown{
+    font-size: 17px;
+    color: #ffd700;
+    font-weight: bold;
+    margin-top: 8px;
+    text-shadow: 2px 2px 8px black;
+}
+
+/* ===== FOOTER (BOTTOM CENTER PC) ===== */
+.footer{
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
+    text-align: center;
+    font-size: 14px;
+    opacity: 0.85;
+    color: white;
+    text-shadow: 2px 2px 8px black;
+    z-index: 999;
+}
+
+/* =======================================================
+   📱 MOBILE (ONLY RESPONSIVE — NO DESIGN BREAK)
+   ======================================================= */
+@media (max-width: 768px){
+
+    /* Salam same like PC */
+    .salam-text{
+        font-size: 28px;
+        white-space: nowrap;
+    }
+
+    .salam-sub{
+        font-size: 18px;
+    }
+
+    .salam-box{
+        padding: 30px 20px;
+    }
+
+    /* Top info resize (tarabi/roja/sehri/iftar) */
+    .selected-line-1{
+        font-size: 22px;
+        white-space: normal;
+        line-height: 1.3;
+    }
+
+    .selected-line-2{
+        font-size: 18px;
+    }
+
+    .selected-week{
+        font-size: 16px;
+    }
+
+    /* Namaz boxes one by one mobile */
+    .namaz-row{
+        grid-template-columns: 1fr;
+        padding: 20px;
+    }
+
+    /* Clock fixed top-right always */
+    .clock{
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        font-size: 16px;
+        z-index: 9999;
+    }
+
+    /* Footer movable on mobile (as requested) */
+    .footer{
+        position: relative;
+        bottom: auto;
+        left: auto;
+        transform: none;
+        margin-top: 40px;
+        margin-bottom: 15px;
+        text-align: center;
+        width: 100%;
+    }
+}
+/* =======================================================
+   📱 MOBILE ONLY (DO NOT TOUCH PC VERSION)
+   Only: Salam center + Footer bottom center mobile
+   ======================================================= */
+@media (max-width: 768px){
+
+    /* 🔥 Salam perfectly center (mobile only) */
+    .salam-bg{
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        text-align: center;
+        min-height: 100vh;
+    }
+
+    .salam-center-wrapper{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        min-height: 100vh;
+    }
+
+    /* Salam one line like PC */
+    .salam-text{
+        font-size: 26px;
+        white-space: nowrap; /* one line mobile */
+        text-align: center;
+    }
+
+    .salam-sub{
+        font-size: 18px;
+        text-align: center;
+    }
+
+    .salam-box{
+        padding: 30px 20px;
+        max-width: 95%;
+        margin: 0 auto;
+    }
+
+    /* ❗ Developed by Mehedi Hasan mobile bottom center */
+    .footer{
+        position: fixed !important;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: auto;
+        text-align: center;
+        font-size: 13px;
+        opacity: 0.9;
+        z-index: 999;
+    }
+}
+/* =======================================================
+   📱 3RD PAGE MOBILE ONLY — FOOTER MOVE WITH SCROLL
+   (ONLY THIS CHANGE, PC + OTHER PAGES UNCHANGED)
+   ======================================================= */
+@media (max-width: 768px){
+
+    /* 3rd page footer movable (scroll up/down) */
+    .clean-bg .footer{
+        position: relative !important;  /* remove fixed only on result page mobile */
+        bottom: auto !important;
+        left: auto !important;
+        transform: none !important;
+        margin-top: 40px;
+        margin-bottom: 20px;
+        width: 100%;
+        text-align: center;
+    }
+
+}
+/* ================= 🌞 ACTIVE WAQT SUN GLOW HIGHLIGHT ================= */
+.active-waqt{
+    border: 2px solid gold !important;
+    box-shadow:
+        0 0 20px rgba(255, 215, 0, 0.6),
+        0 0 40px rgba(255, 200, 0, 0.5),
+        0 0 80px rgba(255, 180, 0, 0.35),
+        inset 0 0 25px rgba(255, 215, 0, 0.25);
+    background: rgba(0, 0, 0, 0.75) !important;
+    transition: all 0.4s ease;
+}
