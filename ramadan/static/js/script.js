@@ -1,184 +1,165 @@
-// ================= LIVE CLOCK =================
-function updateClock() {
-    const clock = document.getElementById("clock");
-    if (!clock) return;
+<script>
+// ===== RAMADAN WAQT HIGHLIGHT + COUNTDOWN SYSTEM (FULL FINAL) =====
 
-    const now = new Date();
+// Convert 12h time (05:16 AM) → minutes
+function parseTimeToMinutes(timeStr) {
+    if (!timeStr || timeStr.includes("সময়") || timeStr.includes("শুরু")) {
+        return null;
+    }
 
-    let hours = now.getHours();
-    let minutes = now.getMinutes();
-    let seconds = now.getSeconds();
+    const parts = timeStr.trim().split(" ");
+    if (parts.length < 2) return null;
 
-    const ampm = hours >= 12 ? "PM" : "AM";
+    let [hour, minute] = parts[0].split(":").map(Number);
+    const period = parts[1];
 
-    hours = hours % 12;
-    hours = hours ? hours : 12;
+    if (period === "PM" && hour !== 12) hour += 12;
+    if (period === "AM" && hour === 12) hour = 0;
 
-    clock.textContent =
-        `${String(hours).padStart(2, "0")}:` +
-        `${String(minutes).padStart(2, "0")}:` +
-        `${String(seconds).padStart(2, "0")} ${ampm}`;
+    return hour * 60 + minute;
 }
-setInterval(updateClock, 1000);
-updateClock();
 
+// Get Bangladesh local time (mobile + pc auto)
+function getNowMinutes() {
+    const now = new Date();
+    return now.getHours() * 60 + now.getMinutes();
+}
 
-// ================= DIVISION → DISTRICT =================
-function setupDivisionDistrict() {
-    const divisionSelect = document.getElementById("division");
-    const districtSelect = document.getElementById("district");
-
-    if (!divisionSelect || !districtSelect) return;
-    if (typeof divisionsData === "undefined") return;
-
-    divisionSelect.addEventListener("change", function () {
-        const selectedDivision = this.value;
-
-        districtSelect.innerHTML = '<option value="">জেলা নির্বাচন করুন</option>';
-
-        if (!selectedDivision || !divisionsData[selectedDivision]) return;
-
-        const districts = divisionsData[selectedDivision];
-
-        districts.forEach(function (district) {
-            const option = document.createElement("option");
-            option.value = district;
-            option.textContent = district + " জেলা";
-            districtSelect.appendChild(option);
-        });
+// Remove all highlights
+function resetHighlights() {
+    document.querySelectorAll(".waqt-card").forEach(card => {
+        card.classList.remove("active-waqt");
     });
 }
 
+// Highlight current waqt based on your custom logic
+function highlightCurrentWaqt() {
+    const nowMin = getNowMinutes();
 
-// ================= TIME PARSER (DISTRICT SAFE) =================
-function parseTodayTime(timeStr) {
-    if (!timeStr) return null;
+    const fajarText = document.getElementById("fajar-time")?.innerText;
+    const zohorText = document.getElementById("zohor-time")?.innerText;
+    const asorText = document.getElementById("asor-time")?.innerText;
+    const magribText = document.getElementById("magrib-time")?.innerText;
+    const eshaText = document.getElementById("esha-time")?.innerText;
 
-    // Example: "05:00 AM"
-    const parts = timeStr.trim().split(" ");
-    if (parts.length !== 2) return null;
+    const fajarMin = parseTimeToMinutes(fajarText);
+    const zohorMin = parseTimeToMinutes(zohorText);
+    const asorMin = parseTimeToMinutes(asorText);
+    const magribMin = parseTimeToMinutes(magribText);
+    const eshaMin = parseTimeToMinutes(eshaText);
 
-    let [time, modifier] = parts;
-    let [hours, minutes] = time.split(":").map(Number);
-
-    if (modifier === "PM" && hours !== 12) hours += 12;
-    if (modifier === "AM" && hours === 12) hours = 0;
-
-    // 🔥 IMPORTANT: use TODAY date but keep backend time difference
-    const now = new Date();
-    const target = new Date();
-
-    target.setFullYear(now.getFullYear());
-    target.setMonth(now.getMonth());
-    target.setDate(now.getDate());
-    target.setHours(hours);
-    target.setMinutes(minutes);
-    target.setSeconds(0);
-    target.setMilliseconds(0);
-
-    return target;
-}
-
-
-// ================= SMART COUNTDOWN + WAQT STATUS SYSTEM =================
-function startSmartCountdownSystem() {
-
-    // 🔥 IMPORTANT: include BOTH namaz + sehri/iftar boxes
-    const allCountdowns = document.querySelectorAll(".countdown");
-    if (!allCountdowns.length) return;
-
-    function updateSystem() {
-        const now = new Date();
-
-        // ===== HANDLE SEHRI + IFTAR (INFO BOX) =====
-        allCountdowns.forEach(el => {
-            const parentBox = el.closest(".info-box");
-            if (!parentBox) return; // skip namaz here
-
-            const timeStr = el.dataset.time;
-            const target = parseTodayTime(timeStr);
-            if (!target) return;
-
-            const diff = target - now;
-
-            if (diff <= 0) {
-                el.innerHTML = "⌛ সময় শেষ";
-            } else {
-                const total = Math.floor(diff / 1000);
-                const h = Math.floor(total / 3600);
-                const m = Math.floor((total % 3600) / 60);
-                const s = total % 60;
-
-                el.innerHTML =
-                    `⏳ ${h} ঘণ্টা ${m} মিনিট ${s} সেকেন্ড বাকি`;
-            }
-        });
-
-        // ===== HANDLE 5 WAQT NAMAZ (STATUS + HIGHLIGHT) =====
-        const namazBoxes = document.querySelectorAll(".namaz-glass");
-        if (!namazBoxes.length) return;
-
-        const waqtList = [];
-
-        namazBoxes.forEach(box => {
-            const el = box.querySelector(".countdown");
-            const timeStr = box.dataset.time;
-            const parsed = parseTodayTime(timeStr);
-
-            if (parsed && el) {
-                waqtList.push({
-                    box: box,
-                    time: parsed,
-                    el: el
-                });
-            }
-        });
-
-        // sort by time
-        waqtList.sort((a, b) => a.time - b.time);
-
-        // remove previous highlight
-        namazBoxes.forEach(box => box.classList.remove("active-waqt"));
-
-        for (let i = 0; i < waqtList.length; i++) {
-            const current = waqtList[i];
-            const next = waqtList[i + 1];
-
-            // ⏳ FUTURE WAQT → show countdown
-            if (now < current.time) {
-                const diff = current.time - now;
-                const total = Math.floor(diff / 1000);
-                const h = Math.floor(total / 3600);
-                const m = Math.floor((total % 3600) / 60);
-                const s = total % 60;
-
-                current.el.innerHTML =
-                    `⏳ ${h} ঘণ্টা ${m} মিনিট ${s} সেকেন্ড বাকি`;
-                continue;
-            }
-
-            // 🟢 RUNNING WAQT → highlight + started text
-            if (!next || (now >= current.time && now < next.time)) {
-                current.box.classList.add("active-waqt");
-                current.el.innerHTML = "🟢 ওয়াক্ত শুরু হয়েছে";
-                continue;
-            }
-
-            // ⌛ FINISHED WAQT → only after next waqt starts
-            if (next && now >= next.time) {
-                current.el.innerHTML = "⌛ নামাজের সময় শেষ";
-            }
-        }
+    if (
+        fajarMin === null ||
+        zohorMin === null ||
+        asorMin === null ||
+        magribMin === null ||
+        eshaMin === null
+    ) {
+        return;
     }
 
-    updateSystem();
-    setInterval(updateSystem, 1000);
+    resetHighlights();
+
+    // ===== YOUR EXACT WAQT RULE SYSTEM =====
+
+    // Esha (7:45 PM → Fajar start)
+    if (nowMin >= eshaMin || nowMin < fajarMin) {
+        document.getElementById("esha-card")?.classList.add("active-waqt");
+        setNextLabel("ফজর শুরু হবে");
+    }
+    // Fajar (Fajar → Zohor approx)
+    else if (nowMin >= fajarMin && nowMin < zohorMin) {
+        document.getElementById("fajar-card")?.classList.add("active-waqt");
+        setNextLabel("যোহর শুরু হবে");
+    }
+    // Zohor (12:15 → Asor)
+    else if (nowMin >= zohorMin && nowMin < asorMin) {
+        document.getElementById("zohor-card")?.classList.add("active-waqt");
+        setNextLabel("আসর শুরু হবে");
+    }
+    // Asor (Asor → Magrib/Iftar)
+    else if (nowMin >= asorMin && nowMin < magribMin) {
+        document.getElementById("asor-card")?.classList.add("active-waqt");
+        setNextLabel("মাগরিব শুরু হবে");
+    }
+    // Magrib (Iftar → Esha)
+    else if (nowMin >= magribMin && nowMin < eshaMin) {
+        document.getElementById("magrib-card")?.classList.add("active-waqt");
+        setNextLabel("এশা শুরু হবে");
+    }
 }
 
+// Set countdown label text
+function setNextLabel(text) {
+    const label = document.getElementById("countdown-label");
+    if (label) {
+        label.innerText = "পরবর্তী ওয়াক্ত: " + text;
+    }
+}
 
-// ================= AUTO INIT (ALL PAGES SAFE) =================
+// Countdown to next waqt
+function startWaqtCountdown() {
+    const countdownEl = document.getElementById("countdown");
+    if (!countdownEl) return;
+
+    setInterval(() => {
+        const now = new Date();
+
+        const fajarText = document.getElementById("fajar-time")?.innerText;
+        const zohorText = document.getElementById("zohor-time")?.innerText;
+        const asorText = document.getElementById("asor-time")?.innerText;
+        const magribText = document.getElementById("magrib-time")?.innerText;
+        const eshaText = document.getElementById("esha-time")?.innerText;
+
+        const times = [
+            { name: "ফজর", min: parseTimeToMinutes(fajarText) },
+            { name: "যোহর", min: parseTimeToMinutes(zohorText) },
+            { name: "আসর", min: parseTimeToMinutes(asorText) },
+            { name: "মাগরিব", min: parseTimeToMinutes(magribText) },
+            { name: "এশা", min: parseTimeToMinutes(eshaText) }
+        ];
+
+        const nowMin = now.getHours() * 60 + now.getMinutes();
+
+        let next = null;
+
+        for (let t of times) {
+            if (t.min !== null && t.min > nowMin) {
+                next = t;
+                break;
+            }
+        }
+
+        // If all passed → next is Fajar (next day)
+        if (!next) {
+            next = times[0];
+        }
+
+        if (next && next.min !== null) {
+            const target = new Date();
+            target.setHours(Math.floor(next.min / 60), next.min % 60, 0, 0);
+
+            if (target <= now) {
+                target.setDate(target.getDate() + 1);
+            }
+
+            const diff = target - now;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            countdownEl.innerText =
+                `⏳ ${next.name} শুরু হতে বাকি: ${hours}ঘ ${minutes}মি ${seconds}সে`;
+        }
+    }, 1000);
+}
+
+// Auto run
 document.addEventListener("DOMContentLoaded", function () {
-    updateClock();
-    setupDivisionDistrict();     // dashboard page
-    startSmartCountdownSystem(); // 🔥 sehri + iftar + 5 waqt (final)
+    highlightCurrentWaqt();
+    startWaqtCountdown();
+
+    // Update highlight every 30 sec (live)
+    setInterval(highlightCurrentWaqt, 30000);
 });
+</script>
