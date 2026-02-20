@@ -10,7 +10,7 @@
     <style>
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: "Poppins", Arial, sans-serif;
             background: url("{{ url_for('static', filename='images/salam.jpg') }}") no-repeat center center/cover;
             min-height: 100vh;
             display: flex;
@@ -18,54 +18,63 @@
             justify-content: center;
         }
 
-        .card {
-            background: rgba(0, 0, 0, 0.7);
-            padding: 30px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 500px;
+        .glass-card {
+            width: 95%;
+            max-width: 520px;
+            padding: 35px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            box-shadow: 0 0 30px rgba(0,0,0,0.6);
             color: white;
             text-align: center;
-            backdrop-filter: blur(10px);
         }
 
         h2 {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            color: gold;
         }
 
-        select, input, button {
+        select, input {
             width: 100%;
             padding: 12px;
-            margin: 10px 0;
-            border-radius: 8px;
+            margin: 12px 0;
+            border-radius: 10px;
             border: none;
             font-size: 16px;
+            outline: none;
         }
 
         button {
-            background: gold;
+            width: 100%;
+            padding: 14px;
+            margin-top: 15px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, gold, orange);
             font-weight: bold;
+            font-size: 17px;
             cursor: pointer;
         }
 
         button:hover {
-            background: orange;
+            transform: scale(1.02);
         }
 
         .footer {
-            margin-top: 15px;
+            margin-top: 20px;
             font-size: 14px;
-            opacity: 0.8;
+            opacity: 0.85;
         }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>{{ app_name }}</h2>
+<div class="glass-card">
+    <h2>📍 বিভাগ, জেলা ও তারিখ নির্বাচন</h2>
 
     <form action="{{ url_for('result') }}" method="POST">
-        <!-- Division -->
         <select name="division" id="division" required>
             <option value="">বিভাগ নির্বাচন করুন</option>
             {% for div in divisions.keys() %}
@@ -73,12 +82,10 @@
             {% endfor %}
         </select>
 
-        <!-- District -->
         <select name="district" id="district" required>
             <option value="">জেলা নির্বাচন করুন</option>
         </select>
 
-        <!-- Date -->
         <input type="date" name="date" required>
 
         <button type="submit">সময়সূচী দেখুন</button>
@@ -89,11 +96,9 @@
     </div>
 </div>
 
-<!-- Pass divisions data to JS -->
 <script>
     window.divisionsData = {{ divisions | tojson }};
 </script>
-
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
 </body>
