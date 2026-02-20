@@ -112,6 +112,146 @@
 <div class="footer">
     Developed by Mehedi Hasan
 </div>
+<script>
+// ===== SAFE TIME PARSER (05:16 AM → minutes) =====
+function parseTimeSafe(timeStr) {
+    if (!timeStr) return null;
 
+    // Ignore text like "সময় শেষ হয়েছে"
+    if (timeStr.includes("সময়") || timeStr.includes("শুরু")) return null;
+
+    try {
+        const parts = timeStr.trim().split(" ");
+        if (parts.length < 2) return null;
+
+        let [hour, minute] = parts[0].split(":").map(Number);
+        const period = parts[1];
+
+        if (period === "PM" && hour !== 12) hour += 12;
+        if (period === "AM" && hour === 12) hour = 0;
+
+        return hour * 60 + minute;
+    } catch (e) {
+        return null;
+    }
+}
+
+// ===== GET CURRENT BD TIME (Browser Local) =====
+function getNowMinutes() {
+    const now = new Date();
+    return now.getHours() * 60 + now.getMinutes();
+}
+
+// ===== GET TIME FROM DOM =====
+function getTime(id) {
+    const el = document.getElementById(id);
+    if (!el) return null;
+    return parseTimeSafe(el.innerText);
+}
+
+// ===== HIGHLIGHT CURRENT WAQT =====
+function highlightWaqt() {
+    const nowMin = getNowMinutes();
+
+    const fajar = getTime("fajar-time");
+    const zohor = getTime("zohor-time");
+    const asor = getTime("asor-time");
+    const magrib = getTime("magrib-time");
+    const esha = getTime("esha-time");
+
+    if (fajar === null || zohor === null || asor === null || magrib === null || esha === null) {
+        return; // if time text is not valid (past/future page)
+    }
+
+    // Remove old highlight
+    document.querySelectorAll(".waqt-card").forEach(card => {
+        card.classList.remove("active-waqt");
+    });
+
+    // Esha (7:45 PM → Fajar)
+    if (nowMin >= esha || nowMin < fajar) {
+        document.getElementById("esha-card")?.classList.add("active-waqt");
+    }
+    // Fajar (Fajar → Zohor)
+    else if (nowMin >= fajar && nowMin < zohor) {
+        document.getElementById("fajar-card")?.classList.add("active-waqt");
+    }
+    // Zohor (Zohor → Asor)
+    else if (nowMin >= zohor && nowMin < asor) {
+        document.getElementById("zohor-card")?.classList.add("active-waqt");
+    }
+    // Asor (Asor → Magrib/Iftar)
+    else if (nowMin >= asor && nowMin < magrib) {
+        document.getElementById("asor-card")?.classList.add("active-waqt");
+    }
+    // Magrib (Iftar → Esha)
+    else if (nowMin >= magrib && nowMin < esha) {
+        document.getElementById("magrib-card")?.classList.add("active-waqt");
+    }
+}
+
+// ===== NEXT WAQT COUNTDOWN (MAIN FIX) =====
+function startCountdown() {
+    const countdownEl = document.getElementById("countdown");
+    if (!countdownEl) return;
+
+    setInterval(() => {
+        const now = new Date();
+        const nowMin = getNowMinutes();
+
+        const times = [
+            { name: "ফজর", min: getTime("fajar-time") },
+            { name: "যোহর", min: getTime("zohor-time") },
+            { name: "আসর", min: getTime("asor-time") },
+            { name: "মাগরিব", min: getTime("magrib-time") },
+            { name: "এশা", min: getTime("esha-time") }
+        ].filter(t => t.min !== null);
+
+        if (times.length === 0) {
+            countdownEl.innerText = "আজকের সময় সক্রিয় নয়";
+            return;
+        }
+
+        let next = null;
+
+        // Find next waqt today
+        for (let t of times) {
+            if (t.min > nowMin) {
+                next = t;
+                break;
+            }
+        }
+
+        // If all waqt passed → next is tomorrow Fajar
+        if (!next) {
+            next = times[0];
+        }
+
+        const target = new Date();
+        target.setHours(Math.floor(next.min / 60), next.min % 60, 0, 0);
+
+        if (target <= now) {
+            target.setDate(target.getDate() + 1);
+        }
+
+        const diff = target - now;
+
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+
+        countdownEl.innerText =
+            `⏳ ${next.name} শুরু হতে বাকি: ${hours}ঘ ${minutes}মি ${seconds}সে`;
+    }, 1000);
+}
+
+// ===== AUTO RUN =====
+document.addEventListener("DOMContentLoaded", function () {
+    highlightWaqt();        // initial highlight
+    startCountdown();       // start countdown
+    setInterval(highlightWaqt, 60000); // update highlight every 1 min
+});
+</script>
 </body>
 </html>
+
