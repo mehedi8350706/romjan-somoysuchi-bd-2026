@@ -1,51 +1,250 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>নির্বাচন</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_name }}</title>
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-<script>
-    // divisions data for JS
-    window.divisionsData = {{ divisions | tojson }};
-</script>
-<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Poppins", sans-serif;
+            background: linear-gradient(180deg, #020024, #000000);
+            color: white;
+            text-align: center;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        h1 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .info-box {
+            margin-bottom: 20px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .waqt-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .waqt-card {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 14px;
+            padding: 18px 10px;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: 0.4s ease;
+        }
+
+        .waqt-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .waqt-time {
+            font-size: 18px;
+            color: #ffd700;
+            font-weight: 500;
+        }
+
+        /* 🌞 Active Highlight (Glass + Sun Glow) */
+        .active-waqt {
+            border: 2px solid #ffd700;
+            box-shadow:
+                0 0 20px rgba(255, 215, 0, 0.9),
+                0 0 45px rgba(255, 200, 0, 0.6),
+                0 0 80px rgba(255, 170, 0, 0.4);
+            background: rgba(255, 215, 0, 0.08);
+            transform: scale(1.04);
+        }
+
+        .countdown-box {
+            margin-top: 25px;
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffd700;
+        }
+
+        .back-btn {
+            margin-top: 30px;
+            padding: 12px 25px;
+            border-radius: 10px;
+            border: none;
+            background: #ffd700;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            background: #ffcc00;
+        }
+    </style>
 </head>
+<body>
 
-<body class="clean-bg">
+<div class="container">
+    <h1>{{ app_name }}</h1>
 
-<div class="clock" id="clock"></div>
+    <div class="info-box">
+        📍 {{ division }} - {{ district }} <br>
+        📅 {{ date_bn }} ({{ week }}) <br>
+        🌙 তারাবী: {{ tarabi }} | 🌞 রোজা: {{ roza }}
+    </div>
 
-<!-- CENTER TRANSPARENT BOX -->
-<div class="dashboard-center">
-    <form method="POST" action="/result" class="select-glass-box">
+    <!-- 🕌 WAQT CARDS -->
+    <div class="waqt-grid">
+        <div class="waqt-card" id="fajar-card">
+            <div class="waqt-name">ফজর</div>
+            <div class="waqt-time" id="fajar-time">{{ fajar_12 }}</div>
+        </div>
 
-        <!-- Division -->
-        <select name="division" id="division" required class="glass-input">
-            <option value="">বিভাগ নির্বাচন করুন</option>
-            {% for div in divisions.keys() %}
-            <option value="{{ div }}">{{ div }} বিভাগ</option>
-            {% endfor %}
-        </select>
+        <div class="waqt-card" id="zohor-card">
+            <div class="waqt-name">যোহর</div>
+            <div class="waqt-time" id="zohor-time">{{ zohor_12 }}</div>
+        </div>
 
-        <!-- District (AUTO LOAD FIXED) -->
-        <select name="district" id="district" required class="glass-input">
-            <option value="">জেলা নির্বাচন করুন</option>
-        </select>
+        <div class="waqt-card" id="asor-card">
+            <div class="waqt-name">আসর</div>
+            <div class="waqt-time" id="asor-time">{{ asor_12 }}</div>
+        </div>
 
-        <!-- Date Picker (NOT TYPE) -->
-        <input type="date" name="date" class="glass-input"
-               min="2026-02-18" max="2026-03-19" required>
+        <div class="waqt-card" id="magrib-card">
+            <div class="waqt-name">মাগরিব (ইফতার)</div>
+            <div class="waqt-time" id="magrib-time">{{ magrib_12 }}</div>
+        </div>
 
-        <button type="submit" class="glass-btn">
-            সময়সূচি দেখুন
-        </button>
+        <div class="waqt-card" id="esha-card">
+            <div class="waqt-name">এশা</div>
+            <div class="waqt-time" id="esha-time">{{ esha_12 }}</div>
+        </div>
+    </div>
 
+    <!-- ⏳ COUNTDOWN -->
+    <div class="countdown-box" id="countdown">
+        ⏳ কাউন্টডাউন লোড হচ্ছে...
+    </div>
+
+    <form action="/dashboard">
+        <button class="back-btn">⬅️ আবার দেখুন</button>
     </form>
 </div>
 
-<div class="footer">Developed by Mehedi Hasan</div>
+<!-- 🔥 FULL WAQT HIGHLIGHT + COUNTDOWN JS -->
+<script>
+function parseTime(timeStr) {
+    if (!timeStr || timeStr.includes("সময়") || timeStr.includes("শুরু")) return null;
+
+    const parts = timeStr.trim().split(" ");
+    if (parts.length < 2) return null;
+
+    let [h, m] = parts[0].split(":").map(Number);
+    const period = parts[1];
+
+    if (period === "PM" && h !== 12) h += 12;
+    if (period === "AM" && h === 12) h = 0;
+
+    return h * 60 + m;
+}
+
+function getNowMinutes() {
+    const now = new Date(); // BD local time (browser)
+    return now.getHours() * 60 + now.getMinutes();
+}
+
+function removeHighlight() {
+    document.querySelectorAll(".waqt-card").forEach(card => {
+        card.classList.remove("active-waqt");
+    });
+}
+
+function highlightCurrentWaqt() {
+    const now = getNowMinutes();
+
+    const fajar = parseTime(document.getElementById("fajar-time").innerText);
+    const zohor = parseTime(document.getElementById("zohor-time").innerText);
+    const asor = parseTime(document.getElementById("asor-time").innerText);
+    const magrib = parseTime(document.getElementById("magrib-time").innerText);
+    const esha = parseTime(document.getElementById("esha-time").innerText);
+
+    if (fajar === null || zohor === null || asor === null || magrib === null || esha === null) return;
+
+    removeHighlight();
+
+    // Esha: 7:45 PM → Fajar
+    if (now >= esha || now < fajar) {
+        document.getElementById("esha-card").classList.add("active-waqt");
+    }
+    // Fajar: Fajar → Zohor
+    else if (now >= fajar && now < zohor) {
+        document.getElementById("fajar-card").classList.add("active-waqt");
+    }
+    // Zohor: Zohor → Asor
+    else if (now >= zohor && now < asor) {
+        document.getElementById("zohor-card").classList.add("active-waqt");
+    }
+    // Asor: Asor → Magrib (Iftar division wise)
+    else if (now >= asor && now < magrib) {
+        document.getElementById("asor-card").classList.add("active-waqt");
+    }
+    // Magrib: Iftar → Esha
+    else if (now >= magrib && now < esha) {
+        document.getElementById("magrib-card").classList.add("active-waqt");
+    }
+}
+
+function startCountdown() {
+    const el = document.getElementById("countdown");
+
+    setInterval(() => {
+        const now = new Date();
+        const nowMin = getNowMinutes();
+
+        const times = [
+            {name: "ফজর", min: parseTime(document.getElementById("fajar-time").innerText)},
+            {name: "যোহর", min: parseTime(document.getElementById("zohor-time").innerText)},
+            {name: "আসর", min: parseTime(document.getElementById("asor-time").innerText)},
+            {name: "মাগরিব", min: parseTime(document.getElementById("magrib-time").innerText)},
+            {name: "এশা", min: parseTime(document.getElementById("esha-time").innerText)}
+        ].filter(t => t.min !== null);
+
+        if (times.length === 0) {
+            el.innerText = "আজকের সময় সক্রিয় নয়";
+            return;
+        }
+
+        let next = times.find(t => t.min > nowMin);
+        if (!next) next = times[0];
+
+        const target = new Date();
+        target.setHours(Math.floor(next.min / 60), next.min % 60, 0, 0);
+        if (target <= now) target.setDate(target.getDate() + 1);
+
+        const diff = target - now;
+        const h = Math.floor(diff / (1000*60*60));
+        const m = Math.floor((diff / (1000*60)) % 60);
+        const s = Math.floor((diff / 1000) % 60);
+
+        el.innerText = `⏳ ${next.name} শুরু হতে বাকি: ${h}ঘ ${m}মি ${s}সে`;
+    }, 1000);
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    highlightCurrentWaqt();
+    startCountdown();
+    setInterval(highlightCurrentWaqt, 60000);
+});
+</script>
 
 </body>
 </html>
