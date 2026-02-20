@@ -3,99 +3,49 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{ app_name }}</title>
+<title>নির্বাচন</title>
 
-<style>
-body{
-    margin:0;
-    font-family:Poppins, sans-serif;
-    color:white;
-    text-align:center;
-    background: url("{{ url_for('static', filename='images/salam.jpg') }}") no-repeat center center fixed;
-    background-size: cover;
-}
-
-.box{
-    margin-top: 120px;
-}
-
-select, input, button{
-    padding:12px;
-    margin:10px;
-    border-radius:10px;
-    border:none;
-    font-size:16px;
-    width:260px;
-}
-
-button{
-    background: gold;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-.footer{
-    position:fixed;
-    bottom:10px;
-    width:100%;
-    text-align:center;
-    opacity:0.8;
-    font-size:14px;
-}
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script>
+    // divisions data for JS
+    window.divisionsData = {{ divisions | tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </head>
-<body>
 
-<div class="box">
-    <h2>বিভাগ, জেলা ও তারিখ নির্বাচন করুন</h2>
+<body class="clean-bg">
 
-    <form action="/result" method="POST">
+<div class="clock" id="clock"></div>
+
+<!-- CENTER TRANSPARENT BOX -->
+<div class="dashboard-center">
+    <form method="POST" action="/result" class="select-glass-box">
+
         <!-- Division -->
-        <select name="division" id="division" required>
+        <select name="division" id="division" required class="glass-input">
             <option value="">বিভাগ নির্বাচন করুন</option>
-            {% for div in divisions %}
-            <option value="{{ div }}">{{ div }}</option>
+            {% for div in divisions.keys() %}
+            <option value="{{ div }}">{{ div }} বিভাগ</option>
             {% endfor %}
         </select>
-        <br>
 
-        <!-- District -->
-        <select name="district" id="district" required>
+        <!-- District (AUTO LOAD FIXED) -->
+        <select name="district" id="district" required class="glass-input">
             <option value="">জেলা নির্বাচন করুন</option>
         </select>
-        <br>
 
-        <!-- Date -->
-        <input type="date" name="date" required>
-        <br>
+        <!-- Date Picker (NOT TYPE) -->
+        <input type="date" name="date" class="glass-input"
+               min="2026-02-18" max="2026-03-19" required>
 
-        <button type="submit">সময়সূচী দেখুন</button>
+        <button type="submit" class="glass-btn">
+            সময়সূচি দেখুন
+        </button>
+
     </form>
 </div>
 
-<div class="footer">
-    Developed by Mehedi Hasan
-</div>
-
-<script>
-const divisions = {{ divisions | tojson }};
-
-document.getElementById("division").addEventListener("change", function(){
-    const selected = this.value;
-    const districtSelect = document.getElementById("district");
-
-    districtSelect.innerHTML = '<option value="">জেলা নির্বাচন করুন</option>';
-
-    if(divisions[selected]){
-        divisions[selected].forEach(d=>{
-            const op = document.createElement("option");
-            op.value = d;
-            op.textContent = d;
-            districtSelect.appendChild(op);
-        });
-    }
-});
-</script>
+<div class="footer">Developed by Mehedi Hasan</div>
 
 </body>
 </html>
