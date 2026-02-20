@@ -1,51 +1,100 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>নির্বাচন</title>
+    <meta charset="UTF-8">
+    <title>{{ app_name }} - Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-<script>
-    // divisions data for JS
-    window.divisionsData = {{ divisions | tojson }};
-</script>
-<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: url("{{ url_for('static', filename='images/salam.jpg') }}") no-repeat center center/cover;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            color: white;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        select, input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+        }
+
+        button {
+            background: gold;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: orange;
+        }
+
+        .footer {
+            margin-top: 15px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+    </style>
 </head>
+<body>
 
-<body class="clean-bg">
+<div class="card">
+    <h2>{{ app_name }}</h2>
 
-<div class="clock" id="clock"></div>
-
-<!-- CENTER TRANSPARENT BOX -->
-<div class="dashboard-center">
-    <form method="POST" action="/result" class="select-glass-box">
-
+    <form action="{{ url_for('result') }}" method="POST">
         <!-- Division -->
-        <select name="division" id="division" required class="glass-input">
+        <select name="division" id="division" required>
             <option value="">বিভাগ নির্বাচন করুন</option>
             {% for div in divisions.keys() %}
-            <option value="{{ div }}">{{ div }} বিভাগ</option>
+            <option value="{{ div }}">{{ div }}</option>
             {% endfor %}
         </select>
 
-        <!-- District (AUTO LOAD FIXED) -->
-        <select name="district" id="district" required class="glass-input">
+        <!-- District -->
+        <select name="district" id="district" required>
             <option value="">জেলা নির্বাচন করুন</option>
         </select>
 
-        <!-- Date Picker (NOT TYPE) -->
-        <input type="date" name="date" class="glass-input"
-               min="2026-02-18" max="2026-03-19" required>
+        <!-- Date -->
+        <input type="date" name="date" required>
 
-        <button type="submit" class="glass-btn">
-            সময়সূচি দেখুন
-        </button>
-
+        <button type="submit">সময়সূচী দেখুন</button>
     </form>
+
+    <div class="footer">
+        Developed by Mehedi Hasan
+    </div>
 </div>
 
-<div class="footer">Developed by Mehedi Hasan</div>
+<!-- Pass divisions data to JS -->
+<script>
+    window.divisionsData = {{ divisions | tojson }};
+</script>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
 </body>
 </html>
