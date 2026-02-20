@@ -412,3 +412,12 @@ input[type="date"]{
     background: rgba(0, 0, 0, 0.75) !important;
     transition: all 0.4s ease;
 }
+.active-waqt {
+    border: 2px solid #ffd700;
+    box-shadow: 
+        0 0 20px rgba(255, 215, 0, 0.8),
+        0 0 40px rgba(255, 200, 0, 0.5);
+    background: rgba(255, 215, 0, 0.08);
+    backdrop-filter: blur(10px);
+    transition: all 0.4s ease;
+}
