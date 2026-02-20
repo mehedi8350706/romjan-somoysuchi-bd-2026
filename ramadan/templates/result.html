@@ -1,249 +1,134 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ app_name }}</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ app_name }}</title>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: "Poppins", sans-serif;
-            background: linear-gradient(180deg, #020024, #000000);
-            color: white;
-            text-align: center;
-        }
+<style>
+body {
+    background:#000;
+    color:white;
+    font-family:Poppins;
+    text-align:center;
+    padding:20px;
+}
 
-        .container {
-            padding: 20px;
-        }
+.waqt-card {
+    background:rgba(255,255,255,0.05);
+    margin:10px;
+    padding:15px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.1);
+}
 
-        h1 {
-            color: #ffd700;
-            margin-bottom: 10px;
-        }
+.active-waqt {
+    border:2px solid gold;
+    box-shadow:0 0 20px gold;
+    transform:scale(1.03);
+}
 
-        .info-box {
-            margin-bottom: 20px;
-            font-size: 18px;
-            line-height: 1.6;
-        }
-
-        .waqt-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .waqt-card {
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 14px;
-            padding: 18px 10px;
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: 0.4s ease;
-        }
-
-        .waqt-name {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .waqt-time {
-            font-size: 18px;
-            color: #ffd700;
-            font-weight: 500;
-        }
-
-        /* 🌞 Active Highlight (Glass + Sun Glow) */
-        .active-waqt {
-            border: 2px solid #ffd700;
-            box-shadow:
-                0 0 20px rgba(255, 215, 0, 0.9),
-                0 0 45px rgba(255, 200, 0, 0.6),
-                0 0 80px rgba(255, 170, 0, 0.4);
-            background: rgba(255, 215, 0, 0.08);
-            transform: scale(1.04);
-        }
-
-        .countdown-box {
-            margin-top: 25px;
-            font-size: 20px;
-            font-weight: 600;
-            color: #ffd700;
-        }
-
-        .back-btn {
-            margin-top: 30px;
-            padding: 12px 25px;
-            border-radius: 10px;
-            border: none;
-            background: #ffd700;
-            color: black;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .back-btn:hover {
-            background: #ffcc00;
-        }
-    </style>
+.countdown {
+    margin-top:20px;
+    font-size:18px;
+    color:#FFD700;
+}
+</style>
 </head>
 <body>
 
-<div class="container">
-    <h1>{{ app_name }}</h1>
+<h2>{{ division }} - {{ district }}</h2>
+<h3>{{ date_bn }} ({{ week }})</h3>
 
-    <div class="info-box">
-        📍 {{ division }} - {{ district }} <br>
-        📅 {{ date_bn }} ({{ week }}) <br>
-        🌙 তারাবী: {{ tarabi }} | 🌞 রোজা: {{ roza }}
-    </div>
-
-    <!-- 🕌 WAQT CARDS -->
-    <div class="waqt-grid">
-        <div class="waqt-card" id="fajar-card">
-            <div class="waqt-name">ফজর</div>
-            <div class="waqt-time" id="fajar-time">{{ fajar_12 }}</div>
-        </div>
-
-        <div class="waqt-card" id="zohor-card">
-            <div class="waqt-name">যোহর</div>
-            <div class="waqt-time" id="zohor-time">{{ zohor_12 }}</div>
-        </div>
-
-        <div class="waqt-card" id="asor-card">
-            <div class="waqt-name">আসর</div>
-            <div class="waqt-time" id="asor-time">{{ asor_12 }}</div>
-        </div>
-
-        <div class="waqt-card" id="magrib-card">
-            <div class="waqt-name">মাগরিব (ইফতার)</div>
-            <div class="waqt-time" id="magrib-time">{{ magrib_12 }}</div>
-        </div>
-
-        <div class="waqt-card" id="esha-card">
-            <div class="waqt-name">এশা</div>
-            <div class="waqt-time" id="esha-time">{{ esha_12 }}</div>
-        </div>
-    </div>
-
-    <!-- ⏳ COUNTDOWN -->
-    <div class="countdown-box" id="countdown">
-        ⏳ কাউন্টডাউন লোড হচ্ছে...
-    </div>
-
-    <form action="/dashboard">
-        <button class="back-btn">⬅️ আবার দেখুন</button>
-    </form>
+<div class="waqt-card" id="fajar-card">
+    <h3>ফজর</h3>
+    <p id="fajar-time">{{ fajar_12 }}</p>
 </div>
 
-<!-- 🔥 FULL WAQT HIGHLIGHT + COUNTDOWN JS -->
+<div class="waqt-card" id="zohor-card">
+    <h3>যোহর</h3>
+    <p id="zohor-time">{{ zohor_12 }}</p>
+</div>
+
+<div class="waqt-card" id="asor-card">
+    <h3>আসর</h3>
+    <p id="asor-time">{{ asor_12 }}</p>
+</div>
+
+<div class="waqt-card" id="magrib-card">
+    <h3>মাগরিব (ইফতার)</h3>
+    <p id="magrib-time">{{ magrib_12 }}</p>
+</div>
+
+<div class="waqt-card" id="esha-card">
+    <h3>এশা</h3>
+    <p id="esha-time">{{ esha_12 }}</p>
+</div>
+
+<div class="waqt-card">
+    <h3>সেহরি</h3>
+    <p id="sehri-time">{{ sehri }}</p>
+</div>
+
+<div class="countdown" id="countdown">
+⏳ লাইভ কাউন্টডাউন লোড হচ্ছে...
+</div>
+
 <script>
-function parseTime(timeStr) {
-    if (!timeStr || timeStr.includes("সময়") || timeStr.includes("শুরু")) return null;
-
-    const parts = timeStr.trim().split(" ");
-    if (parts.length < 2) return null;
-
-    let [h, m] = parts[0].split(":").map(Number);
-    const period = parts[1];
-
-    if (period === "PM" && h !== 12) h += 12;
-    if (period === "AM" && h === 12) h = 0;
-
-    return h * 60 + m;
+function parseTime(str){
+    if(!str || str.includes("সময়") || str.includes("শুরু")) return null;
+    let [time, period] = str.split(" ");
+    let [h,m] = time.split(":").map(Number);
+    if(period==="PM" && h!==12) h+=12;
+    if(period==="AM" && h===12) h=0;
+    return h*60+m;
 }
 
-function getNowMinutes() {
-    const now = new Date(); // BD local time (browser)
-    return now.getHours() * 60 + now.getMinutes();
+function nowMin(){
+    let d=new Date();
+    return d.getHours()*60+d.getMinutes();
 }
 
-function removeHighlight() {
-    document.querySelectorAll(".waqt-card").forEach(card => {
-        card.classList.remove("active-waqt");
-    });
+function highlight(){
+    let now=nowMin();
+    let f=parseTime(fajar-time.innerText);
+    let z=parseTime(zohor-time.innerText);
+    let a=parseTime(asor-time.innerText);
+    let m=parseTime(magrib-time.innerText);
+    let e=parseTime(esha-time.innerText);
+
+    document.querySelectorAll(".waqt-card").forEach(c=>c.classList.remove("active-waqt"));
+
+    if(now>=e || now<f) esha-card.classList.add("active-waqt");
+    else if(now>=f && now<z) fajar-card.classList.add("active-waqt");
+    else if(now>=z && now<a) zohor-card.classList.add("active-waqt");
+    else if(now>=a && now<m) asor-card.classList.add("active-waqt");
+    else if(now>=m && now<e) magrib-card.classList.add("active-waqt");
 }
 
-function highlightCurrentWaqt() {
-    const now = getNowMinutes();
+function countdown(){
+    let box=document.getElementById("countdown");
+    setInterval(()=>{
+        let now=new Date();
+        let targetMin=parseTime(magrib-time.innerText);
+        if(!targetMin) return;
 
-    const fajar = parseTime(document.getElementById("fajar-time").innerText);
-    const zohor = parseTime(document.getElementById("zohor-time").innerText);
-    const asor = parseTime(document.getElementById("asor-time").innerText);
-    const magrib = parseTime(document.getElementById("magrib-time").innerText);
-    const esha = parseTime(document.getElementById("esha-time").innerText);
+        let target=new Date();
+        target.setHours(Math.floor(targetMin/60), targetMin%60,0,0);
+        if(target<=now) target.setDate(target.getDate()+1);
 
-    if (fajar === null || zohor === null || asor === null || magrib === null || esha === null) return;
+        let diff=target-now;
+        let h=Math.floor(diff/1000/3600);
+        let m=Math.floor((diff/1000%3600)/60);
+        let s=Math.floor(diff/1000%60);
 
-    removeHighlight();
-
-    // Esha: 7:45 PM → Fajar
-    if (now >= esha || now < fajar) {
-        document.getElementById("esha-card").classList.add("active-waqt");
-    }
-    // Fajar: Fajar → Zohor
-    else if (now >= fajar && now < zohor) {
-        document.getElementById("fajar-card").classList.add("active-waqt");
-    }
-    // Zohor: Zohor → Asor
-    else if (now >= zohor && now < asor) {
-        document.getElementById("zohor-card").classList.add("active-waqt");
-    }
-    // Asor: Asor → Magrib (Iftar division wise)
-    else if (now >= asor && now < magrib) {
-        document.getElementById("asor-card").classList.add("active-waqt");
-    }
-    // Magrib: Iftar → Esha
-    else if (now >= magrib && now < esha) {
-        document.getElementById("magrib-card").classList.add("active-waqt");
-    }
+        box.innerText=`🍽️ ইফতার পর্যন্ত বাকি: ${h}ঘ ${m}মি ${s}সে`;
+    },1000);
 }
 
-function startCountdown() {
-    const el = document.getElementById("countdown");
-
-    setInterval(() => {
-        const now = new Date();
-        const nowMin = getNowMinutes();
-
-        const times = [
-            {name: "ফজর", min: parseTime(document.getElementById("fajar-time").innerText)},
-            {name: "যোহর", min: parseTime(document.getElementById("zohor-time").innerText)},
-            {name: "আসর", min: parseTime(document.getElementById("asor-time").innerText)},
-            {name: "মাগরিব", min: parseTime(document.getElementById("magrib-time").innerText)},
-            {name: "এশা", min: parseTime(document.getElementById("esha-time").innerText)}
-        ].filter(t => t.min !== null);
-
-        if (times.length === 0) {
-            el.innerText = "আজকের সময় সক্রিয় নয়";
-            return;
-        }
-
-        let next = times.find(t => t.min > nowMin);
-        if (!next) next = times[0];
-
-        const target = new Date();
-        target.setHours(Math.floor(next.min / 60), next.min % 60, 0, 0);
-        if (target <= now) target.setDate(target.getDate() + 1);
-
-        const diff = target - now;
-        const h = Math.floor(diff / (1000*60*60));
-        const m = Math.floor((diff / (1000*60)) % 60);
-        const s = Math.floor((diff / 1000) % 60);
-
-        el.innerText = `⏳ ${next.name} শুরু হতে বাকি: ${h}ঘ ${m}মি ${s}সে`;
-    }, 1000);
-}
-
-document.addEventListener("DOMContentLoaded", function() {
-    highlightCurrentWaqt();
-    startCountdown();
-    setInterval(highlightCurrentWaqt, 60000);
-});
+highlight();
+countdown();
+setInterval(highlight,60000);
 </script>
 
 </body>
