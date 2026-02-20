@@ -1,40 +1,40 @@
 from flask import Flask, render_template, request, redirect, url_for
 import json
-import os
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+import pytz
 
 app = Flask(__name__)
+
+# ===== BANGLADESH TIMEZONE =====
+BD_TZ = pytz.timezone("Asia/Dhaka")
 
 # ===== APP BRAND =====
 APP_NAME = "রমজান সময়সূচী BD 2026"
 
-# ===== BANGLADESH TIME (UTC+6) =====
-BD_TIMEZONE = timezone(timedelta(hours=6))
-
-def bd_now():
-    return datetime.now(BD_TIMEZONE)
-
-# ===== RAMADAN AUTO CLOSE (30 DAYS → EID) =====
-RAMADAN_START = datetime(2026, 2, 18, tzinfo=BD_TIMEZONE)
+# ===== RAMADAN AUTO CLOSE =====
+RAMADAN_START = datetime(2026, 2, 18)
 RAMADAN_DAYS = 30
 
+
+def get_bd_now():
+    return datetime.now(BD_TZ)
+
+
 def is_ramadan_over():
-    today = bd_now()
+    today = get_bd_now()
     end_date = RAMADAN_START + timedelta(days=RAMADAN_DAYS)
     return today >= end_date
 
 
 # ===== LOAD JSON DATA =====
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-with open(os.path.join(BASE_DIR, "data", "divisions.json"), "r", encoding="utf-8") as f:
+with open("data/divisions.json", "r", encoding="utf-8") as f:
     divisions = json.load(f)
 
-with open(os.path.join(BASE_DIR, "data", "ramadan_times.json"), "r", encoding="utf-8") as f:
+with open("data/ramadan_times.json", "r", encoding="utf-8") as f:
     ramadan_times = json.load(f)
 
 
-# ===== TIME FORMAT (24H → 12H) =====
+# ===== TIME FORMAT =====
 def to_12_hour(time_str):
     hour, minute = map(int, time_str.split(":"))
     suffix = "AM"
@@ -100,7 +100,7 @@ def dashboard():
     return render_template("dashboard.html", divisions=divisions, app_name=APP_NAME)
 
 
-# ===== RESULT (SMART DATE SYSTEM - BD TIME FIXED) =====
+# ===== RESULT PAGE =====
 @app.route("/result", methods=["POST"])
 def result():
     division = request.form.get("division")
@@ -115,18 +115,17 @@ def result():
     except:
         return redirect(url_for("dashboard"))
 
-    # ===== BANGLADESH CURRENT DATE (REAL FIX) =====
-    today_real = bd_now().date()
+    # ===== BD TODAY FIX (CRITICAL BUG FIX) =====
+    today_bd = get_bd_now().date()
     selected_real = date_obj.date()
-    tomorrow_real = today_real + timedelta(days=1)
+    tomorrow_bd = today_bd + timedelta(days=1)
 
-    # ===== RAMADAN DAY CALCULATION =====
-    diff_days = (date_obj.replace(tzinfo=BD_TIMEZONE) - RAMADAN_START).days
+    diff_days = (date_obj - RAMADAN_START).days
     tarabi = max(0, min(30, diff_days + 1))
-    roza = max(0, min(30, diff_days))
+    roza = max(0, min(30, diff_days if diff_days > 0 else 0))
 
-    # 🔴 PAST DATE
-    if selected_real < today_real:
+    # ===== PAST DATE =====
+    if selected_real < today_bd:
         msg = "সময় শেষ হয়েছে"
         return render_template(
             "result.html",
@@ -146,8 +145,8 @@ def result():
             esha_12=msg,
         )
 
-    # 🟡 TOMORROW
-    if selected_real == tomorrow_real:
+    # ===== TOMORROW =====
+    if selected_real == tomorrow_bd:
         msg = "আগামীকাল শুরু হবে"
         return render_template(
             "result.html",
@@ -167,8 +166,8 @@ def result():
             esha_12=msg,
         )
 
-    # 🔵 FUTURE DATE
-    if selected_real > tomorrow_real:
+    # ===== FUTURE =====
+    if selected_real > tomorrow_bd:
         future_text = f"{date_obj.strftime('%d %B')} তারিখ শুরু হবে"
         return render_template(
             "result.html",
@@ -188,7 +187,7 @@ def result():
             esha_12=future_text,
         )
 
-    # 🟢 TODAY (LIVE TIME SYSTEM)
+    # ===== TODAY LIVE TIMES =====
     base_times = ramadan_times.get("ঢাকা", [])
     day_index = max(0, min(29, diff_days if diff_days >= 0 else 0))
 
@@ -200,7 +199,6 @@ def result():
         sehri_base = "04:50"
         iftar_base = "18:10"
 
-    # Offset apply
     if district in district_offsets:
         offset = district_offsets[district]
     else:
@@ -234,7 +232,8 @@ def result():
     )
 
 
-# ===== RENDER PRODUCTION RUN (PORT FIXED) =====
+# ===== RUN FOR RENDER (PORT FIX) =====
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))  # Render auto port
-    app.run(host="0.0.0.0", port=port, debug=False)
+    import os
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
