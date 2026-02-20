@@ -1,5 +1,6 @@
-// ===== DISTRICT SELECT SYSTEM =====
 document.addEventListener("DOMContentLoaded", function () {
+
+    // ===== DISTRICT SELECT FIX =====
     const divisionSelect = document.getElementById("division");
     const districtSelect = document.getElementById("district");
 
@@ -7,12 +8,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const divisions = window.divisionsData;
 
         divisionSelect.addEventListener("change", function () {
-            const selectedDivision = this.value;
+            const selected = this.value;
             districtSelect.innerHTML = '<option value="">জেলা নির্বাচন করুন</option>';
 
-            if (!selectedDivision || !divisions[selectedDivision]) return;
+            if (!selected || !divisions[selected]) return;
 
-            divisions[selectedDivision].forEach(function (district) {
+            divisions[selected].forEach(function (district) {
                 const option = document.createElement("option");
                 option.value = district;
                 option.textContent = district;
@@ -21,67 +22,79 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ===== COUNTDOWN + WAKTO HIGHLIGHT SYSTEM =====
+    // ===== COUNTDOWN + HIGHLIGHT (3rd Page) =====
     const sehriEl = document.getElementById("sehri-time");
     const iftarEl = document.getElementById("iftar-time");
+    const countdownEl = document.getElementById("countdown");
 
     if (!sehriEl || !iftarEl) return;
 
-    function parseTime(timeStr) {
-        if (!timeStr || timeStr.includes("সময়") || timeStr.includes("শুরু")) return null;
-
-        const [time, period] = timeStr.split(" ");
-        let [h, m] = time.split(":").map(Number);
-
-        if (period === "PM" && h !== 12) h += 12;
-        if (period === "AM" && h === 12) h = 0;
-
-        const now = new Date();
-        const bdNow = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
-        const target = new Date(bdNow);
-        target.setHours(h, m, 0, 0);
-        return target;
+    function getBDTime() {
+        return new Date(
+            new Date().toLocaleString("en-US", { timeZone: "Asia/Dhaka" })
+        );
     }
 
-    function updateCountdown() {
-        const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
+    function parseTime(str) {
+        if (!str || str.includes("শুরু") || str.includes("শেষ")) return null;
 
-        const sehriTime = parseTime(sehriEl.innerText);
-        const iftarTime = parseTime(iftarEl.innerText);
+        const parts = str.split(" ");
+        if (parts.length < 2) return null;
 
-        const cards = document.querySelectorAll(".wakto-card");
+        let [hour, minute] = parts[0].split(":").map(Number);
+        const period = parts[1];
 
-        cards.forEach(card => card.classList.remove("active-wakto"));
+        if (period === "PM" && hour !== 12) hour += 12;
+        if (period === "AM" && hour === 12) hour = 0;
 
-        if (!sehriTime || !iftarTime) return;
+        const now = getBDTime();
+        const t = new Date(now);
+        t.setHours(hour, minute, 0, 0);
+        return t;
+    }
 
-        if (now >= sehriTime && now < iftarTime) {
-            document.getElementById("fajar-card")?.classList.add("active-wakto");
-        }
+    function updateSystem() {
+        const now = getBDTime();
+        const sehri = parseTime(sehriEl.innerText);
+        const iftar = parseTime(iftarEl.innerText);
 
-        if (now >= iftarTime) {
-            document.getElementById("magrib-card")?.classList.add("active-wakto");
-        }
+        if (!sehri || !iftar) return;
 
-        // Countdown to next (Iftar priority)
-        let target = iftarTime;
-        if (now > iftarTime) {
-            target = new Date(sehriTime.getTime() + 24 * 60 * 60 * 1000);
+        // ===== COUNTDOWN (Next Iftar priority) =====
+        let target = iftar;
+        if (now > iftar) {
+            target = new Date(sehri.getTime() + 86400000);
         }
 
         const diff = target - now;
 
-        if (diff > 0) {
+        if (diff > 0 && countdownEl) {
             const h = Math.floor(diff / 3600000);
             const m = Math.floor((diff % 3600000) / 60000);
             const s = Math.floor((diff % 60000) / 1000);
 
-            const cd = document.getElementById("countdown");
-            if (cd) {
-                cd.innerText = `${h} ঘন্টা ${m} মিনিট ${s} সেকেন্ড বাকি`;
-            }
+            countdownEl.innerText = `${h} ঘন্টা ${m} মিনিট ${s} সেকেন্ড বাকি`;
+        }
+
+        // ===== WAKTO HIGHLIGHT =====
+        document.querySelectorAll(".wakto-card").forEach(card => {
+            card.classList.remove("active-wakto");
+        });
+
+        const hours = now.getHours() + now.getMinutes()/60;
+
+        if (hours >= 4.5 && hours < 6.5) {
+            document.getElementById("fajar-card")?.classList.add("active-wakto");
+        } else if (hours >= 12.15 && hours < 16.3) {
+            document.getElementById("zohor-card")?.classList.add("active-wakto");
+        } else if (hours >= 16.3 && now < iftar) {
+            document.getElementById("asor-card")?.classList.add("active-wakto");
+        } else if (now >= iftar && hours < 19.75) {
+            document.getElementById("magrib-card")?.classList.add("active-wakto");
+        } else {
+            document.getElementById("esha-card")?.classList.add("active-wakto");
         }
     }
 
-    setInterval(updateCountdown, 1000);
+    setInterval(updateSystem, 1000);
 });
