@@ -421,3 +421,12 @@ input[type="date"]{
     backdrop-filter: blur(10px);
     transition: all 0.4s ease;
 }
+.wakto-card {
+    transition: 0.3s;
+}
+
+.active-wakto {
+    border: 2px solid gold !important;
+    box-shadow: 0 0 25px gold;
+    transform: scale(1.05);
+}
